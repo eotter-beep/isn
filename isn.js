@@ -75,9 +75,8 @@
       return this.nodes.map((node, index) => ({ node, index, distance: node.latitude && node.longitude && anchors.length ? Math.min(...anchors.map((anchor) => distance(node, anchor))) : index })).sort((a, b) => a.distance - b.distance).map(({ node }) => node);
     }
 
-    async put(value) {
+    async put(value, objectId = crypto.randomUUID()) {
       const encoded = encode(value);
-      const objectId = crypto.randomUUID();
       const chunks = [];
       for (let offset = 0; offset < encoded.bytes.length; offset += this.chunkSize) {
         const bytes = encoded.bytes.slice(offset, offset + this.chunkSize);

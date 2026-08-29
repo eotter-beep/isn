@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ISN / Shared storage test</title>
+  <style>
+    :root{font-family:Arial,sans-serif;color:#111;background:#f5f5f2}*{box-sizing:border-box}body{max-width:900px;margin:0 auto;padding:42px 22px}h1{font-size:clamp(38px,7vw,72px);letter-spacing:-.07em;margin:28px 0 12px}p{color:#656b68;line-height:1.6}.eyebrow,label,code{font:11px monospace;letter-spacing:.05em}.eyebrow{color:#f05223}.panel{border:1px solid #d3d5d1;background:#fff;padding:22px;margin-top:28px}label{display:block;color:#656b68;margin-bottom:8px}.input-row{display:flex;gap:10px;margin-bottom:16px}input{width:100%;border:1px solid #bfc5c0;background:#fafaf8;padding:13px;font:13px monospace}button{border:0;background:#111;color:#fff;padding:13px 16px;font-weight:bold;cursor:pointer}button.secondary{background:#f05223}.status{font:12px monospace;color:#69716c;min-height:18px;margin:16px 0}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;border-bottom:1px solid #ddd;padding:14px 10px}th{font:11px monospace;color:#777}td:first-child{font:12px monospace;color:#777}.empty{text-align:center;color:#888;padding:34px}.hint{font-size:12px}.hint code{color:#f05223}
+  </style>
+</head>
+<body>
+  <div class="eyebrow">ISN / PUBLIC STORAGE TEST</div>
+  <h1>Shared rows.<br><span style="color:#f05223">No central database.</span></h1>
+  <p>Point both browsers at the same reachable ISN storage host and board ID. New rows are written through ISN and read back by every participant using that board.</p>
+  <section class="panel">
+    <label for="nodes">PUBLIC STORAGE HOSTS (comma separated)</label>
+    <div class="input-row"><input id="nodes" placeholder="https://your-public-node.example" autocomplete="url"><button id="connect">Connect</button></div>
+    <label for="board">SHARED BOARD ID</label>
+    <div class="input-row"><input id="board" value="isn-shared-test-board" spellcheck="false"><button id="share" class="secondary">Copy link</button></div>
+    <div id="status" class="status" role="status">Not connected</div>
+  </section>
+  <section class="panel">
+    <form id="row-form"><label for="text">NEW ROW</label><div class="input-row"><input id="text" placeholder="Write something another user can see" required><button class="secondary">Store row</button></div></form>
+    <div class="table-wrap"><table><thead><tr><th>TIME</th><th>ROW</th></tr></thead><tbody id="rows"><tr><td colspan="2" class="empty">Connect to a public ISN host to load rows.</td></tr></tbody></table></div>
+  </section>
+  <p class="hint">This page stores the board object at <code>isn-shared-test-board</code> using <code>isn.put()</code> and reads it using <code>isn.get()</code>. Both users must use the same host and board ID.</p>
+  <script src="https://eotter-beep.github.io/isn/isn.js"></script>
+  <script>
+    const nodesInput = document.querySelector('#nodes');
+    const boardInput = document.querySelector('#board');
+    const status = document.querySelector('#status');
+    const rows = document.querySelector('#rows');
+    let isn;
+    let board = [];
+    const setStatus = (message, error = false) => { status.textContent = message; status.style.color = error ? '#b33d1a' : ''; };
+    const render = () => { rows.innerHTML = board.length ? board.slice().reverse().map((row) => `<tr><td>${new Date(row.time).toLocaleTimeString()}</td><td>${escapeHtml(row.text)}</td></tr>`).join('') : '<tr><td colspan="2" class="empty">No rows yet.</td></tr>'; };
+    const escapeHtml = (value) => value.replace(/[&<>'"]/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    async function load() { board = await isn.get(boardInput.value); if (!Array.isArray(board)) throw new Error('Board object is not a row list'); render(); setStatus(`${board.length} row${board.length === 1 ? '' : 's'} loaded from ISN`); }
+    document.querySelector('#connect').onclick = async () => { try { const nodes = nodesInput.value.split(',').map((node) => node.trim()).filter(Boolean); isn = new ISN({ nodes, replicas: Math.min(2, nodes.length) }); await load(); } catch (error) { setStatus(error.message, true); } };
+    document.querySelector('#row-form').onsubmit = async (event) => { event.preventDefault(); if (!isn) return setStatus('Connect to a public ISN host first', true); try { board.push({ text: document.querySelector('#text').value, time: Date.now() }); await isn.put(board, boardInput.value); document.querySelector('#text').value = ''; render(); setStatus(`${board.length} row${board.length === 1 ? '' : 's'} stored on ISN`); } catch (error) { setStatus(error.message, true); } };
+    document.querySelector('#share').onclick = async () => { const url = new URL(location.href); url.searchParams.set('board', boardInput.value); await navigator.clipboard.writeText(url); setStatus('Shared board link copied'); };
+    const boardFromUrl = new URLSearchParams(location.search).get('board'); if (boardFromUrl) boardInput.value = boardFromUrl;
+  </script>
+</body>
+</html>

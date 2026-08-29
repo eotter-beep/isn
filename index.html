@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ISN turns independent IP-addressable machines into one decentralized storage fabric.">
+  <title>ISN / The Internet is your storage layer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="ISN home"><span class="brand-mark"><i></i><i></i><i></i></span><span>ISN</span></a>
+    <button class="menu-toggle" aria-expanded="false" aria-controls="main-nav">Menu <span>+</span></button>
+    <nav id="main-nav" class="main-nav" aria-label="Main navigation">
+      <a href="#network">Network</a><a href="#protocol">Protocol</a><a href="#developers">Developers</a><a href="#security">Security</a>
+    </nav>
+    <a class="header-cta" href="#developers">Start building <span>↗</span></a>
+  </header>
+
+  <main id="top">
+    <section class="hero section-wrap">
+      <div class="eyebrow"><span class="pulse"></span> IP STORAGE NODES / PUBLIC NETWORK</div>
+      <h1>The Internet is<br><em>your storage layer.</em></h1>
+      <p class="hero-copy">ISN connects independent storage nodes over public IPs and makes them usable through one simple JavaScript interface.</p>
+      <div class="hero-actions"><a class="button button-dark" href="#developers">Start building <span>↗</span></a><a class="text-link" href="#protocol">Read the docs <span>→</span></a></div>
+      <div class="include-line"><span class="mono">&lt;script src="https://eotter-beep.github.io/isn/isn.js"&gt;&lt;/script&gt;</span><button class="copy-button" data-copy="&lt;script src=&quot;https://eotter-beep.github.io/isn/isn.js&quot;&gt;&lt;/script&gt;" aria-label="Copy script include">Copy</button></div>
+    </section>
+
+    <section id="network" class="network-section section-wrap rule-top">
+      <div class="section-intro"><div class="eyebrow">01 / THE FABRIC</div><h2>Independent machines.<br><span>One storage fabric.</span></h2><p>Physical storage stays on participating machines. Public IP endpoints make nodes reachable. A permanent identity stays separate from a changing address.</p></div>
+      <div class="network-map" aria-label="ISN network visualization">
+        <div class="map-grid"></div><svg class="connections" viewBox="0 0 700 430" aria-hidden="true"><path d="M350 215L130 95M350 215L570 95M350 215L105 350M350 215L595 350"/><path class="moving-line" d="M350 215L130 95M350 215L570 95M350 215L105 350M350 215L595 350"/></svg>
+        <div class="core-node"><span>ISN</span><small>FABRIC<br>ONLINE</small></div>
+        <div class="node-card n1"><b>NODE 01</b><strong>203.x.x.x</strong><span>850 GB <i class="online">● online</i></span></div>
+        <div class="node-card n2"><b>NODE 02</b><strong>91.x.x.x</strong><span>2.1 TB <i class="online">● online</i></span></div>
+        <div class="node-card n3"><b>NODE 03</b><strong>IPv6</strong><span>400 GB <i class="offline">● standby</i></span></div>
+        <div class="node-card n4"><b>NODE 04</b><strong>198.x.x.x</strong><span>1.4 TB <i class="online">● online</i></span></div>
+        <div class="chunk chunk-a">ENC / 04</div><div class="chunk chunk-b">HASH / OK</div>
+      </div>
+    </section>
+
+    <section id="protocol" class="steps-section section-wrap rule-top"><div class="eyebrow">02 / HOW IT WORKS</div><div class="steps-heading"><h2>Storage, distributed<br><span>by design.</span></h2><p>ISN turns a single write into verifiable, recoverable pieces that can move across an open network.</p></div><div class="steps-grid">
+      <article class="step"><span>01</span><h3>Store</h3><code>const id = await isn.put(data);</code><p>Your application writes through the browser interface.</p></article>
+      <article class="step"><span>02</span><h3>Split</h3><div class="mini-diagram"><i></i><i></i><i></i><i></i></div><p>Data is chunked, hashed, and encrypted before it travels.</p></article>
+      <article class="step"><span>03</span><h3>Distribute</h3><div class="distribution"><b>◆</b><b>◆</b><b>◆</b></div><p>Chunks are stored across independent reachable nodes.</p></article>
+      <article class="step"><span>04</span><h3>Recover</h3><code>const data = await isn.get(id);</code><p>Replicas answer the read. Missing pieces can be rebuilt.</p></article>
+    </div></section>
+
+    <section class="failure-section section-wrap rule-top"><div class="failure-copy"><div class="eyebrow">03 / RESILIENCE</div><h2>Designed<br>for <span>failure.</span></h2><p>Nodes can leave. IPs can change. The fabric is built around verified replicas, not a single point of trust.</p></div><div class="repair-panel"><div class="repair-top"><span>REPLICA HEALTH</span><span class="mono">OBJECT / 8D2A</span></div><div class="replica-state"><strong>3 / 3</strong><span>replicas</span><i class="state-line full"></i></div><div class="repair-event"><span class="event-dot"></span><div><b>Node B offline</b><small>09:41:08 UTC / connection lost</small></div><em>− 1</em></div><div class="replica-state reduced"><strong>2 / 3</strong><span>replicas</span><i class="state-line"></i></div><div class="repair-event active"><span class="event-dot"></span><div><b>Repairing...</b><small>Node D selected / 42% complete</small></div><em>SYNC</em></div><div class="repair-state"><span>✓</span><b>3 / 3 replicas</b><small>fabric restored</small></div></div></section>
+
+    <section id="developers" class="developer-section section-wrap rule-top"><div class="developer-label"><div class="eyebrow">04 / BROWSER-FIRST</div><h2>One<br><span>script.</span></h2><p>Load ISN directly from the web. No package manager, build step, or hosted account between your app and the protocol.</p><a class="text-link" href="#footer">View the protocol <span>→</span></a></div><div class="code-window"><div class="window-bar"><span><i></i><i></i><i></i></span><b>example.html</b><button class="copy-button" data-copy="&lt;script src=&quot;https://eotter-beep.github.io/isn/isn.js&quot;&gt;&lt;/script&gt;\n\n&lt;script&gt;\n  const isn = new ISN();\n  const id = await isn.put(\"hello world\");\n  const data = await isn.get(id);\n&lt;/script&gt;">Copy</button></div><pre><code><span class="tag">&lt;script</span> <span class="attr">src</span>=<span class="str">"https://eotter-beep.github.io/isn/isn.js"</span><span class="tag">&gt;&lt;/script&gt;</span>
+
+<span class="tag">&lt;script&gt;</span>
+  <span class="key">const</span> isn = <span class="key">new</span> <span class="type">ISN</span>();
+
+  <span class="key">const</span> id = <span class="key">await</span> isn.<span class="fn">put</span>(<span class="str">"hello world"</span>);
+  <span class="key">const</span> data = <span class="key">await</span> isn.<span class="fn">get</span>(id);
+<span class="tag">&lt;/script&gt;</span></code></pre><div class="code-footer"><span><i class="online">●</i> ISN loaded from GitHub Pages</span><span class="mono">LOAD ISN. USE IT.</span></div></div></section>
+
+    <section id="security" class="architecture-section section-wrap rule-top"><div class="eyebrow">05 / ARCHITECTURE</div><div class="arch-grid"><div><h2>Not a data center.<br><span>A network of peers.</span></h2><p>ISN is an interface for connecting applications to storage nodes that live on the Internet. The endpoint is a route, not an identity.</p></div><div class="arch-compare"><div class="compare-col"><b>TRADITIONAL</b><div class="arch-stack"><span>App</span><i>↓</i><span>Provider</span><i>↓</i><span>Central storage</span></div></div><div class="compare-col isn-arch"><b>ISN</b><div class="isn-stack"><span>App</span><i>↓</i><strong>ISN</strong><div><span>Node</span><span>Node</span><span>Node</span></div></div></div></div></div></section>
+
+    <section class="node-section section-wrap"><div><div class="eyebrow">06 / PARTICIPATION</div><h2>Bring a machine.<br><span>Join the fabric.</span></h2></div><div class="node-info"><p>A participating machine contributes storage and exposes an ISN-compatible public endpoint. Its cryptographic Node ID remains stable even when its IP address does not.</p><div class="telemetry"><div><span>Node ID</span><b>7F3A...91C2</b></div><div><span>Endpoint</span><b>203.0.113.42:7744</b></div><div><span>Available</span><b>812 GB</b></div><div><span>Status</span><b class="online">● ONLINE</b></div></div></div></section>
+
+    <section class="final-cta section-wrap"><div class="eyebrow">ISN / OPEN STORAGE FABRIC</div><h2>Build storage<br><em>without boundaries.</em></h2><p>Use ISN directly from the web and connect applications to decentralized storage nodes across the Internet.</p><div class="hero-actions"><a class="button button-light" href="#developers">Start building <span>↗</span></a><a class="light-link" href="#protocol">Read the protocol <span>→</span></a></div></section>
+  </main>
+
+  <footer id="footer" class="site-footer section-wrap"><div class="footer-brand"><a class="brand" href="#top"><span class="brand-mark"><i></i><i></i><i></i></span><span>ISN</span></a><p>IP Storage Nodes<br>Storage in the open.</p></div><div class="footer-links"><div><b>Explore</b><a href="#network">Network</a><a href="#developers">Developers</a><a href="#protocol">Docs</a><a href="#protocol">Protocol</a></div><div><b>Connect</b><a href="https://github.com/eotter-beep/isn">GitHub</a><a href="#security">Security</a><a href="#top">Status</a><a href="#top">About</a></div></div><div class="footer-bottom"><span>© 2026 ISN</span><span>Built for the open Internet <i class="online">●</i></span></div></footer>
+  <script src="app.js"></script>
+</body>
+</html>

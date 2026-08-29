@@ -32,18 +32,47 @@
     return toBase64(new Uint8Array(hash));
   }
 
+  const routingHints = ['1.1.1.1', '8.8.8.8'];
+
+  async function locate(address) {
+    const response = await fetch(`https://ipapi.co/${encodeURIComponent(address)}/json/`);
+    if (!response.ok) throw new Error(`Could not locate IP ${address}`);
+    const location = await response.json();
+    return { latitude: Number(location.latitude), longitude: Number(location.longitude) };
+  }
+
+  async function viewerLocation() {
+    const response = await fetch('https://api64.ipify.org?format=json');
+    if (!response.ok) throw new Error('Could not determine viewer IP');
+    return locate((await response.json()).ip);
+  }
+
+  function distance(a, b) {
+    const radians = (value) => value * Math.PI / 180;
+    const latitude = radians(b.latitude - a.latitude);
+    const longitude = radians(b.longitude - a.longitude);
+    const h = Math.sin(latitude / 2) ** 2 + Math.cos(radians(a.latitude)) * Math.cos(radians(b.latitude)) * Math.sin(longitude / 2) ** 2;
+    return 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+  }
+
   function endpoint(node, path) {
     return `${String(node).replace(/\/$/, '')}${path}`;
   }
 
   class ISN {
-    constructor({ nodes = [], replicas = 2, chunkSize = 1024 * 1024 } = {}) {
+    constructor({ nodes = [], replicas = 2, chunkSize = 1024 * 1024, location = null } = {}) {
       this.nodes = nodes;
       this.replicas = Math.max(1, replicas);
       this.chunkSize = chunkSize;
-      if (!this.nodes.length) {
-        throw new Error('ISN requires public storage node endpoints.');
-      }
+      this.location = location;
+      if (!this.nodes.length) throw new Error('ISN requires configured storage hosts.');
+    }
+
+    async route() {
+      const origin = this.location || await viewerLocation().catch(() => null);
+      const locatedHints = await Promise.all(routingHints.map((hint) => locate(hint).catch(() => null)));
+      const anchors = [origin, ...locatedHints].filter(Boolean);
+      return this.nodes.map((node, index) => ({ node, index, distance: node.latitude && node.longitude && anchors.length ? Math.min(...anchors.map((anchor) => distance(node, anchor))) : index })).sort((a, b) => a.distance - b.distance).map(({ node }) => node);
     }
 
     async put(value) {
@@ -55,7 +84,7 @@
         chunks.push({ hash: await digest(bytes), data: toBase64(bytes) });
       }
       const manifest = { objectId, type: encoded.type, size: encoded.bytes.length, chunks: chunks.map(({ hash }) => hash) };
-      const selected = this.nodes.slice(0, Math.min(this.replicas, this.nodes.length));
+      const selected = (await this.route()).slice(0, Math.min(this.replicas, this.nodes.length)).map((node) => typeof node === 'string' ? node : node.endpoint);
       await Promise.all(selected.map((node) => fetch(endpoint(node, `/v1/objects/${objectId}`), {
         method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(manifest)
       }).then(assertOk)));
@@ -68,7 +97,8 @@
     async get(objectId) {
       let manifest;
       let source;
-      for (const node of this.nodes) {
+      for (const configured of await this.route()) {
+        const node = typeof configured === 'string' ? configured : configured.endpoint;
         try { const response = await fetch(endpoint(node, `/v1/objects/${encodeURIComponent(objectId)}`)); if (response.ok) { manifest = await response.json(); source = node; break; } } catch (_) { /* try the next public endpoint */ }
       }
       if (!manifest) throw new Error(`Object not found on configured ISN nodes: ${objectId}`);
